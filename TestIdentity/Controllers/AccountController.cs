@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
@@ -80,7 +81,21 @@ namespace TestIdentity.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    //Find user based on email
+                    Data.ApplicationDbContext context = new Data.ApplicationDbContext();
+                    var userResult = context.Users.Where(x => x.Email == model.Email).FirstOrDefault();
+                    var pncResult = context.PNC.Where(x => x.UserId == userResult.Id).FirstOrDefault(); //Get the PNC Verificaiton Status
+
+                    if (pncResult.IsValid)
+                    {
+                        return RedirectToLocal(returnUrl); //Default Action
+                    }
+                    else
+                    {
+                        return RedirectToAction("ValidateSMSKey", "Account", pncResult);
+                    }
+
+                    
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -143,6 +158,38 @@ namespace TestIdentity.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult ValidateSMSKey(PNCModel model)
+        {
+            //model.SMSKey = string.Empty;
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ValidateSMSKeySubmit(PNCModel model)
+        {
+            using(Data.ApplicationDbContext context = new Data.ApplicationDbContext())
+            {
+                var result = context.PNC.Where(x => x.VerifcationKey == model.VerifcationKey).FirstOrDefault(); //One Result
+                if(result.SMSKey == model.SMSKey)
+                {
+                    result.IsValid = true;
+                    context.Entry(result).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    ViewBag.Message = "You have been verified!";
+
+                }
+            }
+
+           
+
+            return View("ValidateSMSKey", model);
+        }
+
+
         //
         // POST: /Account/Register
         [HttpPost]
@@ -174,13 +221,29 @@ namespace TestIdentity.Controllers
                     //Save a new record for PNC to record
                     PNCModel pncModel = new PNCModel();
                     pncModel.VerifcationKey = hash;
-                    pncModel.User = user;
+                    pncModel.UserId = user.Id;
+
+                    //Generating a key that will be sent to the new user
+                    Random r = new Random();
+                    pncModel.SMSKey = r.Next(0, 100000).ToString("000000");
 
                     //Call EntityFramework to save
                     using(Data.ApplicationDbContext context = new Data.ApplicationDbContext())
                     {
                         context.PNC.Add(pncModel); //Assign the values
-                        context.SaveChanges(); //Save the changes
+
+                        try
+                        {
+                            context.SaveChanges(); //Save the changes
+
+                            //Redirect user to a form in order to validate the keys
+                            return RedirectToAction("ValidateSMSKey", "Account", pncModel);
+                        }
+                        catch(Exception e)
+                        {
+                            //Do Somethings
+                        }
+                   
                     }
 
                     //---------------------------------------------------------

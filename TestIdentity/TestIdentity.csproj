@@ -217,6 +217,30 @@
     <Compile Include="Migrations\201801190322261_changed IsValid to IsActive.Designer.cs">
       <DependentUpon>201801190322261_changed IsValid to IsActive.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801240043283_Removed Custom Fields.cs" />
+    <Compile Include="Migrations\201801240043283_Removed Custom Fields.Designer.cs">
+      <DependentUpon>201801240043283_Removed Custom Fields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801240048257_make sure it%27s gonna build.cs" />
+    <Compile Include="Migrations\201801240048257_make sure it%27s gonna build.Designer.cs">
+      <DependentUpon>201801240048257_make sure it%27s gonna build.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801240106275_make sure it%27s gonna build 1.cs" />
+    <Compile Include="Migrations\201801240106275_make sure it%27s gonna build 1.Designer.cs">
+      <DependentUpon>201801240106275_make sure it%27s gonna build 1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801240111135_make sure it%27s gonna build 2.cs" />
+    <Compile Include="Migrations\201801240111135_make sure it%27s gonna build 2.Designer.cs">
+      <DependentUpon>201801240111135_make sure it%27s gonna build 2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801240116293_Add Is Valid to PNCMOdel.cs" />
+    <Compile Include="Migrations\201801240116293_Add Is Valid to PNCMOdel.Designer.cs">
+      <DependentUpon>201801240116293_Add Is Valid to PNCMOdel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801240126265_pending changes.cs" />
+    <Compile Include="Migrations\201801240126265_pending changes.Designer.cs">
+      <DependentUpon>201801240126265_pending changes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -282,6 +306,7 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\Account\ValidateSMSKey.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -314,6 +339,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801190322261_changed IsValid to IsActive.resx">
       <DependentUpon>201801190322261_changed IsValid to IsActive.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240043283_Removed Custom Fields.resx">
+      <DependentUpon>201801240043283_Removed Custom Fields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240048257_make sure it%27s gonna build.resx">
+      <DependentUpon>201801240048257_make sure it%27s gonna build.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240106275_make sure it%27s gonna build 1.resx">
+      <DependentUpon>201801240106275_make sure it%27s gonna build 1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240111135_make sure it%27s gonna build 2.resx">
+      <DependentUpon>201801240111135_make sure it%27s gonna build 2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240116293_Add Is Valid to PNCMOdel.resx">
+      <DependentUpon>201801240116293_Add Is Valid to PNCMOdel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801240126265_pending changes.resx">
+      <DependentUpon>201801240126265_pending changes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
