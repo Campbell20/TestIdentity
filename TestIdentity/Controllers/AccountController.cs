@@ -254,7 +254,7 @@ namespace TestIdentity.Controllers
                             TwilioClient.Init(accountSid, authToken);
 
                             var to = new PhoneNumber(model.PhoneNumber);
-                            var from = new PhoneNumber("+14696208420");
+                            var from = new PhoneNumber(ConfigurationManager.AppSettings["SMSAccountFrom"]);
 
                             var message = MessageResource.Create(
                                 to: to,
