@@ -12,6 +12,15 @@ using Microsoft.Owin.Security;
 using TestIdentity.Data;
 using TestIdentity.Models;
 
+using System.Configuration;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
+
+using Twilio.TwiML;
+using Twilio.AspNet.Mvc;
+
+
 namespace TestIdentity.Controllers
 {
     [Authorize]
@@ -158,14 +167,25 @@ namespace TestIdentity.Controllers
             return View();
         }
 
+        // get the smskey from user's input
         [HttpGet]
         public ActionResult ValidateSMSKey(PNCModel model)
         {
-            //model.SMSKey = string.Empty;
-            return View(model);
+            ////model.SMSKey = string.Empty;
+            //model = new PNCModel
+            //{
+            //    VerifcationKey = model.VerifcationKey,
+            //    SMSKey = ""
+            //};
+            return View();
+            
         }
 
-
+        /// <summary>
+        /// CHeck the user's inputed smskey to the smskey created by PNCModel. If they're the same, thhen validate the model.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ValidateSMSKeySubmit(PNCModel model)
@@ -205,7 +225,7 @@ namespace TestIdentity.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
 
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
@@ -215,20 +235,13 @@ namespace TestIdentity.Controllers
 
 
                     //---------------------------------------------------------
-                    //Create hash from the new users phone number
-                    string hash = CreateHash.GenerateHash(user.PhoneNumber);
-
-                    //Save a new record for PNC to record
-                    PNCModel pncModel = new PNCModel();
-                    pncModel.VerifcationKey = hash;
-                    pncModel.UserId = user.Id;
-
                     //Generating a key that will be sent to the new user
+                    PNCModel pncModel = new PNCModel();
                     Random r = new Random();
                     pncModel.SMSKey = r.Next(0, 100000).ToString("000000");
 
                     //Call EntityFramework to save
-                    using(Data.ApplicationDbContext context = new Data.ApplicationDbContext())
+                    using (Data.ApplicationDbContext context = new Data.ApplicationDbContext())
                     {
                         context.PNC.Add(pncModel); //Assign the values
 
@@ -236,27 +249,79 @@ namespace TestIdentity.Controllers
                         {
                             context.SaveChanges(); //Save the changes
 
+                            var accountSid = ConfigurationManager.AppSettings["SMSAccountIdentification"];
+                            var authToken = ConfigurationManager.AppSettings["SMSAccountPassword"];
+                            TwilioClient.Init(accountSid, authToken);
+
+                            var to = new PhoneNumber(model.PhoneNumber);
+                            var from = new PhoneNumber("+14696208420");
+
+                            var message = MessageResource.Create(
+                                to: to,
+                                from: from,
+                                body: pncModel.SMSKey);
+
+                            Content(message.Sid);
+
                             //Redirect user to a form in order to validate the keys
                             return RedirectToAction("ValidateSMSKey", "Account", pncModel);
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             //Do Somethings
                         }
-                   
+
                     }
 
-                    //---------------------------------------------------------
-
-
-                    return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            return RedirectToAction("Index", "Home");
         }
+
+
+                    //        //Create hash from the new users phone number
+                    //        string hash = CreateHash.GenerateHash(user.PhoneNumber);
+
+                    //        //Save a new record for PNC to record
+                    //        PNCModel pncModel = new PNCModel();
+                    //        pncModel.VerifcationKey = hash;
+                    //        pncModel.UserId = user.Id;
+
+                    //        //Generating a key that will be sent to the new user
+                    //        Random r = new Random();
+                    //        pncModel.SMSKey = r.Next(0, 100000).ToString("000000");
+
+                    //        //Call EntityFramework to save
+                    //        using(Data.ApplicationDbContext context = new Data.ApplicationDbContext())
+                    //        {
+                    //            context.PNC.Add(pncModel); //Assign the values
+
+                    //            try
+                    //            {
+                    //                context.SaveChanges(); //Save the changes
+
+                    //                //Redirect user to a form in order to validate the keys
+                    //                return RedirectToAction("ValidateSMSKey", "Account", pncModel);
+                    //            }
+                    //            catch(Exception e)
+                    //            {
+                    //                //Do Somethings
+                    //            }
+
+                    //        }
+
+                    //        //---------------------------------------------------------
+
+
+                    //        return RedirectToAction("Index", "Home");
+                    //    }
+                    //    AddErrors(result);
+                    //}
+
+                    //// If we got this far, something failed, redisplay form
+                    //return View(model);
+        
 
         //
         // GET: /Account/ConfirmEmail
